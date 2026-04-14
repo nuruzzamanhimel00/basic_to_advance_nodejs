@@ -1,0 +1,23 @@
+{
+  "name": "modules",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/nuruzzamanhimel00/basic_to_advance_nodejs#readme",
+  "bugs": {
+    "url": "https://github.com/nuruzzamanhimel00/basic_to_advance_nodejs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuruzzamanhimel00/basic_to_advance_nodejs.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/node": "^25.6.0"
+  }
+}
