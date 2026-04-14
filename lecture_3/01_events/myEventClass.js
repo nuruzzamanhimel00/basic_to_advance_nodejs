@@ -1,6 +1,10 @@
 const EventEmitter = require('node:events');
 
 class Chat extends EventEmitter {
+
+    constructor() {
+        super();
+    }
     sendMessage(message) {
         console.log('Sending message:', message);
         this.emit('receiveMessage', message);
