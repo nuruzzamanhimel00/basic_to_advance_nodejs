@@ -1,4 +1,5 @@
 const express = require('express')
+const fs = require('node:fs')
 
 const app = express();
 const port = 8000
@@ -8,16 +9,32 @@ const books = [
     {id: 2 , name: 'Book 2' },
     {id: 3 , name: 'Book 3' },
 ]
-
+const loggerMiddleware = (req, res, next) => {
+    const log = `${Date.now()} - ${req.method} ${req.url}`;
+    fs.appendFileSync('server.log', log + '\n','utf-8')
+    console.log('loggerMiddleware',log)
+    next()
+};
+const customMiddleware = (req, res, next) => {
+    console.log('2. Custom Middleware')
+    next()
+}
 //install plagins
 app.use(express.json())
+
+//middleware  A
+app.use((req, res, next) => {
+    console.log('1. Middleware A')
+    next()
+});
+app.use(loggerMiddleware);
 
 app.get('/books', (req, res) => {
     res.setHeader('x-piy', 'Books API')
     res.json(books)
 })
 
-app.get('/books/:id', (req, res) => {
+app.get('/books/:id', customMiddleware,loggerMiddleware,(req, res) => {
     const id = parseInt(req.params.id)
     const book = books.find(b => b.id === id)
     if (!book) {
