@@ -1,0 +1,22 @@
+{
+  "name": "02_nodejs_drizzle_orm",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "drizzle.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.21.0"
+  }
+}
