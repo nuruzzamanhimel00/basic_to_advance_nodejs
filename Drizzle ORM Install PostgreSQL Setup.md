@@ -68,7 +68,9 @@ drizzle-app/
 Create `.env` file:
 
 ```env
+exp: postgres://<user>:<password>@<host>:<port>/<database>
 DATABASE_URL=postgresql://postgres:root@localhost:5432/nodejs_orm
+
 ```
 
 ### 📌 Notes:
