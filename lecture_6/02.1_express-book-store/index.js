@@ -7,6 +7,7 @@ const bookRouter = require('./routes/book.routes');
 const app = express();
 const PORT = 8000;
 
+
 // Middlewares (Plugins)
 app.use(express.json());
 app.use(loggerMiddleware);

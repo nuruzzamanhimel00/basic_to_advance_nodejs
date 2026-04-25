@@ -1,16 +1,12 @@
-import db from './src/index.js';
-import { usersSchema } from './src/db/schema.js';
 
+import express from 'express';
+import router from './routes/users.route.js';
 
+const app = express()
+const PORT = 8000;
 
-async function main() {
-  await db.insert(usersSchema).values({
-    name: "Himel",
-    age: 25
-  });
+app.use(express.json());
 
-  const data = await db.select().from(usersSchema);
-  console.log(data);
-}
+app.use('/users', router)
 
-main();
+app.listen(PORT, () => console.log(`Http server is running on PORT ${PORT}`));
