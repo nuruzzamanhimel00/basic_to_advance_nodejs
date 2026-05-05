@@ -1,5 +1,6 @@
-import { pgTable, serial, varchar, integer, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, integer, text, index } from "drizzle-orm/pg-core";
 import {usersSchema} from "./user.model.js";
+import { sql } from "drizzle-orm";
 
 // Books Table
 export const booksSchema = pgTable("books", {
@@ -12,4 +13,13 @@ export const booksSchema = pgTable("books", {
   user_id: integer("user_id").references(() => usersSchema.id, {
     onDelete: "cascade", // optional
   }).notNull(),
-});
+
+},
+
+(table) => {
+  return {
+    searchIndexOnTitle: index("title_index").using("gin", sql`to_tsvector('english', ${table.title})`), // ✅ index on title
+  
+  };
+}
+);
