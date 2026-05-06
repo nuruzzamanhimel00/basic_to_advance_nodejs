@@ -1,6 +1,7 @@
 import db from '../src/index.js';
 import { usersSchema } from '../models/user.model.js';
 import { eq } from 'drizzle-orm';
+import { booksSchema } from '../models/book.model.js';
 
 // ✅ Get All Users
 export const getUsers = async (req, res) => {
@@ -95,34 +96,61 @@ export const deleteUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    console.log('Updating user with id:', id);
-    // if (isNaN(id)) {
-    //   return res.status(400).json({ error: 'id must be a number' });
-    // }
+    // console.log('Updating user with id:', id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'id must be a number' });
+    }
 
-    // const { name, age } = req.body;
+    const { name, age, email } = req.body;
 
-    // if (!name && !age) {
-    //   return res.status(400).json({
-    //     error: 'At least one field (name or age) is required',
-    //   });
-    // }
+    if (!name && !age && !email) {
+      return res.status(400).json({
+        error: 'At least one field (name or age or email) is required',
+      });
+    }
 
-    // const result = await db
-    //   .update(usersSchema)
-    //   .set({ name, age })
-    //   .where(eq(usersSchema.id, id))
-    //   .returning();
+    const [result] = await db
+      .update(usersSchema)
+      .set({ name, age, email })
+      .where(eq(usersSchema.id, id))
+      .returning();
+    console.log('Update result:', result);
 
-    // if (result.length === 0) {
-    //   return res.status(404).json({
-    //     error: `User with id ${id} not found`,
-    //   });
-    // }
+    if (!result) {
+      return res.status(404).json({
+        error: `User with id ${id} not found`,
+      });
+    }
 
-    // res.json(result[0]); // updated user return
+    return res.json(result); // updated user return
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
+
 };
+
+export const getUserBooks = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'id must be a number' });
+        }
+
+          const userWithBooks = await db
+          .select()
+          .from(usersSchema)
+          .leftJoin(booksSchema, eq(usersSchema.id, booksSchema.user_id))
+          .where(eq(usersSchema.id, id));
+
+        if (userWithBooks.length === 0) {
+            return res.status(404).json({ error: `User with id ${id} not found` });
+        }
+    
+        res.json(userWithBooks);
+
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+}

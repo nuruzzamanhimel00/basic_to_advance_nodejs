@@ -29,7 +29,7 @@ export const getBooks = async (req, res) => {
 export const getBookById = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        console.log('id', id);
+        // console.log('id', id);
 
         if (isNaN(id)) {
             return res.status(400).json({ error: 'id must be a number' });
@@ -39,7 +39,7 @@ export const getBookById = async (req, res) => {
         .from(booksSchema)
         .leftJoin(usersSchema, eq(booksSchema.user_id, usersSchema.id)) // ✅ Join with users table
         .where(eq(booksSchema.id, id)).limit(1);
-        console.log('book', book);
+        // console.log('book', book);
         
         if (!book) {
             return res.status(404).json({ error: 'Book not found' });
@@ -67,7 +67,7 @@ export const createBook = async (req, res) => {
             .insert(booksSchema)
             .values({ title, description, price, user_id })
             .returning();
-            console.log('insertedBook', insertedBook);
+            // console.log('insertedBook', insertedBook);
 
         // ✅ Step 2: Fetch with user data (join)
         const [result] = await db
