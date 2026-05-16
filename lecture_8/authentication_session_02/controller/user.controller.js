@@ -2,6 +2,7 @@ import db from '../src/index.js';
 import { userSession, usersTable } from '../models/user.model.js';
 import { eq } from 'drizzle-orm';
 import crypto from 'crypto';
+import { generateToken } from '../utils/jwt.js';
 
 export const createUser = async (req, res) => {
     try {
@@ -85,16 +86,17 @@ export const loginUser = async (req, res) => {
                 message: "Invalid email or password",
             });
         }
-        const session_token = crypto.randomBytes(16).toString('hex');
-        // Create session
-        const [session] = await db
-            .insert(userSession)
-            .values({
-                userId: user.id,
-                sessionToken: session_token,
-                createdAt: Math.floor(Date.now() / 1000),
-            })
-            .returning();
+        // // Create session
+        // const session_token = crypto.randomBytes(16).toString('hex');
+        // const [session] = await db
+        //     .insert(userSession)
+        //     .values({
+        //         userId: user.id,
+        //         sessionToken: session_token,
+        //         createdAt: Math.floor(Date.now() / 1000),
+        //     })
+        //     .returning();
+        const token = generateToken(user);
 
         // Remove password from response
         const { password: _, ...safeUser } = user;
@@ -103,7 +105,7 @@ export const loginUser = async (req, res) => {
             success: true,
             message: "Login successful",
             user: safeUser,
-            session,
+            token,
         });
 
     } catch (error) {
