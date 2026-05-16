@@ -1,9 +1,11 @@
 import express from "express";
 
 import multer from 'multer';
-import {createUser, loginUser} from "../controller/user.controller.js";
+
 import { userSession } from "../models/user.model.js";
 import { authUserCheck } from "../middleware/auth.middleware.js";
+import { createUser, loginUser } from "../controller/auth.controller.js";
+import { storeUser } from "../controller/user.controller.js";
 
 const userRouter = express.Router();
 const upload = multer();
@@ -18,6 +20,9 @@ userRouter.get('/me', authUserCheck, async (req, res) => {
         user: req.user
     });
 })
+
+userRouter.post('/store', upload.none(),authUserCheck,
+ storeUser)
 
 
 export default userRouter;
