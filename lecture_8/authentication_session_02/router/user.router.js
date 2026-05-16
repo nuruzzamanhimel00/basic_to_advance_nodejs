@@ -21,11 +21,13 @@ userRouter.get('/me', authUserCheck, async (req, res) => {
     });
 })
 
-userRouter.get('/', authUserCheck, getUsers);
-userRouter.post('/store', upload.none(),authUserCheck,
+userRouter.use(authUserCheck); // Apply auth middleware to all routes below
+
+userRouter.get('/', getUsers);
+userRouter.post('/store', upload.none(),
 restrictToRoles(['admin']),
  storeUser)
-userRouter.put('/update/:id', upload.none(),authUserCheck,
+userRouter.put('/update/:id', upload.none(),
 restrictToRoles(['admin']),
  updateUser)
 
