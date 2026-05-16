@@ -3,7 +3,7 @@ import express from "express";
 import multer from 'multer';
 
 import { userSession } from "../models/user.model.js";
-import { authUserCheck, isAdminRole } from "../middleware/auth.middleware.js";
+import { authUserCheck, isAdminRole, restrictToRoles } from "../middleware/auth.middleware.js";
 import { createUser, loginUser } from "../controller/auth.controller.js";
 import { getUsers, storeUser, updateUser } from "../controller/user.controller.js";
 
@@ -23,10 +23,10 @@ userRouter.get('/me', authUserCheck, async (req, res) => {
 
 userRouter.get('/', authUserCheck, getUsers);
 userRouter.post('/store', upload.none(),authUserCheck,
-isAdminRole,
+restrictToRoles(['admin']),
  storeUser)
 userRouter.put('/update/:id', upload.none(),authUserCheck,
-isAdminRole,
+restrictToRoles(['admin']),
  updateUser)
 
 

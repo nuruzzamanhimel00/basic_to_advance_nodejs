@@ -53,3 +53,24 @@ export const isAdminRole = async (req, res, next) => {
         });
     }
 }
+
+export const restrictToRoles =  (roles) => {
+    return async (req, res, next) => {
+        try {
+            const user = await req.user;
+            // console.log('----user',user)
+            if (!user || !roles.includes(user.role)) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Forbidden: Access denied",
+                });
+            }
+            next();
+        } catch (error) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid or expired token",
+            });
+        }
+    };
+}
