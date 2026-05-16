@@ -14,6 +14,6 @@ export const userSession = pgTable("user_sessions", {
     userId: integer("user_id")
         .references(() => usersTable.id)
         .notNull(),
-
+    sessionToken: varchar("session_token", { length: 255 }).notNull(),
     createdAt: integer("created_at").notNull(),
-});
+}); 

@@ -85,12 +85,13 @@ export const loginUser = async (req, res) => {
                 message: "Invalid email or password",
             });
         }
-
+        const session_token = crypto.randomBytes(16).toString('hex');
         // Create session
         const [session] = await db
             .insert(userSession)
             .values({
                 userId: user.id,
+                sessionToken: session_token,
                 createdAt: Math.floor(Date.now() / 1000),
             })
             .returning();
@@ -114,6 +115,7 @@ export const loginUser = async (req, res) => {
         });
     }
 };
+
 
 const randomSalt = () => {
     return crypto.randomBytes(16).toString('hex');
