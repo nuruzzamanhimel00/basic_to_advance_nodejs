@@ -3,9 +3,9 @@ import express from "express";
 import multer from 'multer';
 
 import { userSession } from "../models/user.model.js";
-import { authUserCheck } from "../middleware/auth.middleware.js";
+import { authUserCheck, isAdminRole } from "../middleware/auth.middleware.js";
 import { createUser, loginUser } from "../controller/auth.controller.js";
-import { storeUser } from "../controller/user.controller.js";
+import { getUsers, storeUser, updateUser } from "../controller/user.controller.js";
 
 const userRouter = express.Router();
 const upload = multer();
@@ -21,8 +21,14 @@ userRouter.get('/me', authUserCheck, async (req, res) => {
     });
 })
 
+userRouter.get('/', authUserCheck, getUsers);
 userRouter.post('/store', upload.none(),authUserCheck,
+isAdminRole,
  storeUser)
+userRouter.put('/update/:id', upload.none(),authUserCheck,
+isAdminRole,
+ updateUser)
+
 
 
 export default userRouter;
