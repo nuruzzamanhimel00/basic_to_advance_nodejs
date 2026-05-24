@@ -5,14 +5,15 @@ import 'dotenv/config';
 export const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, {
-            // এগুলো অপশনাল কিন্তু ভালো
+            dbName: process.env.DB_NAME || 'mongo_db_one', // ← This creates/selects new DB
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
         });
-        
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+        // console.log(`✅ MongoDB Connected! Database: ${conn.connection.db.databaseName}`);
+        return conn;
     } catch (error) {
-        console.error("DB Connection Error:", error.message);
+        console.error("❌ DB Connection Error:", error.message);
         process.exit(1);
     }
 };

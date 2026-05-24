@@ -2,18 +2,19 @@ import express from "express";
 import 'dotenv/config';
 
 import {connectDB} from "./connection.js";
+import authRouter from "./routers/auth.router.js";
 
 const app = express();
-
-// middleware
+// Middleware
 app.use(express.json());
 
-// connect mongodb
+// Connect Database First, then Start Server
 connectDB()
     .then(() => {
-        console.log("DB Connected, Starting Server...");
+        const PORT = process.env.PORT || 8000;
+        
         app.listen(PORT, () => {
-            console.log(`Server running on ${PORT}`);
+            console.log(`🚀 Server running on port ${PORT}`);
         });
     })
     .catch((error) => {
@@ -21,11 +22,10 @@ connectDB()
         process.exit(1);
     });
 
-app.get("/", (req, res) => {
-    res.send("Server running");
-});
+// Routes
+app.use('/auth', authRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
     console.log(`Server running on ${PORT}`);
