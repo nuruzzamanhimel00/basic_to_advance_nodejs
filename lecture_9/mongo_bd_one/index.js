@@ -3,6 +3,7 @@ import 'dotenv/config';
 
 import {connectDB} from "./connection.js";
 import authRouter from "./routers/auth.router.js";
+import userRouter from "./routers/user.router.js";
 
 const app = express();
 // Middleware
@@ -24,6 +25,7 @@ connectDB()
 
 // Routes
 app.use('/auth', authRouter);
+app.use('/users', userRouter);
 
 const PORT = process.env.PORT || 8000;
 
