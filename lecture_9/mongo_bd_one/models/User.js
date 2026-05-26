@@ -22,6 +22,11 @@ const userSchema = new Schema(
       type: String,
       enum: ["user", "admin"],
       default: "user"
+    },
+    created_by: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null // nullable
     }
   },
   {

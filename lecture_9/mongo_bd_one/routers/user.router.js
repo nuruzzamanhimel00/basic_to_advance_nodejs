@@ -1,11 +1,14 @@
 import express from "express";
 import multer from 'multer';
-import { me } from "../controllers/user.controller.js";
-import { auth } from "../middlewares/auth.middleware.js";
+import { getUsers, me, storeUser } from "../controllers/user.controller.js";
+import { allowRoles, auth } from "../middlewares/auth.middleware.js";
 
 const userRouter = express.Router();
 const upload = multer();
 
-userRouter.get('/me', auth, me)
+userRouter.use(auth); // Apply auth middleware to all routes below
+userRouter.get('/me',  me)
+userRouter.get('/', getUsers);
+userRouter.post('/store',upload.none(), allowRoles(['admin']), storeUser);
 
 export default userRouter;
