@@ -59,7 +59,10 @@ export const storeUser = async (req, res) => {
                 message: "User with this email already exists"
             });
         }
-        const user = await User.create({ name, email, password, role, created_by: authUser.id });
+           // Generate salt & hash password
+        const hashedPassword = hashPassword(password, randomSalt());
+        
+        const user = await User.create({ name, email, password: hashedPassword, role, created_by: authUser.id });
 
         return res.status(201).json({
             success: true,
@@ -81,7 +84,6 @@ export const updateUser = async (req, res) => {
         const { password, created_by, ...rest } = req.body;
         const updateData = {
             ...rest,
-            created_by: created_by || null
         };
           // Hash password if provided
         if (password) {;
