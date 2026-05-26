@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import { hashPassword, randomSalt } from "../utils/helper.js";
 
 export const me = async (req, res) => {
     try {
@@ -23,15 +24,18 @@ export const me = async (req, res) => {
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await User.find(); // Fetch all users from the database
+        const users = await User.find()
+            .sort({ _id: -1 }); // DESC order
+
         return res.json({
             success: true,
-            users: users
+            users
         });
+
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: "Internal server error"
         });
     }
 }
@@ -69,3 +73,46 @@ export const storeUser = async (req, res) => {
         });
      }
 }
+
+
+export const updateUser = async (req, res) => {
+    try {
+        const id = (req.params.id);
+        const { password, created_by, ...rest } = req.body;
+        const updateData = {
+            ...rest,
+            created_by: created_by || null
+        };
+          // Hash password if provided
+        if (password) {;
+            updateData.password =  hashPassword(password, randomSalt());
+        }
+        const user = await User.findByIdAndUpdate(
+            id,
+            updateData,
+            {
+                new: true, // return updated document
+                runValidators: true
+            }
+        ).select("-password");
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            data: user
+        });
+        // console.log('---id', updateData, id, user)
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
