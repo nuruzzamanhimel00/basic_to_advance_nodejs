@@ -10,7 +10,7 @@ export const hashPassword = (password, salt) => {
     return `${salt}:${hashedPassword}`;
 };
 
-export const verifyPassword = (password, storedPassword) => {
+export const verifyPassword = async(password, storedPassword) => {
     const [salt, originalHash] = storedPassword.split(':');
     const hash = cryptMakeAHash(password, salt);
     return hash === originalHash;
