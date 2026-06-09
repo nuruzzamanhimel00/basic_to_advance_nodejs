@@ -4,12 +4,25 @@ import { usersModel } from '../models/user.model.js';
 import { hashPassword, randomSalt, verifyPassword } from '../utils/helper.js';
 import { eq } from 'drizzle-orm';
 import { generateToken } from '../../../lecture_8/authentication_session_02/utils/jwt.js';
+import { registerUserSchema } from '../validation/user.validation.js';
 
 export const registerUser = async (req, res) => {
 
     try{
-        const { name, email, password, role } = req.body;
+        // Validate request body
+        const validationResult =
+            await registerUserSchema.safeParseAsync(req.body);
 
+        if (!validationResult.success) {
+            // console.log('validationResult',validationResult.error.issues);
+            return res.status(400).json({
+                error: validationResult.error.issues.map(issue => ({
+                    field: issue.path[0],
+                    message: issue.message
+                }))
+            });
+        }
+        const { name, email, password, role } = validationResult.data;
         // Validation
         if (!name || !email || !password) {
             return res.status(400).json({
