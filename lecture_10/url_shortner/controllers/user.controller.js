@@ -2,6 +2,9 @@ import db from "../src/index.js";
 import { usersModel } from '../models/user.model.js';
 import { hashPassword, randomSalt } from "../utils/helper.js";
 import { eq } from "drizzle-orm";
+import { updateUserSchema, userSchema } from "../validation/user.validation.js";
+import { z } from "zod";
+
 
 export const getUsers = async (req, res) => {
   try {
@@ -14,7 +17,19 @@ export const getUsers = async (req, res) => {
 };
 export const storeUser = async (req, res) => {
     try{
-        const { name, email, password, role } = req.body;
+         // Validate request body
+        const validationResult =
+            await userSchema.safeParseAsync(req.body);
+        if (!validationResult.success) {
+            // console.log('validationResult',validationResult.error.issues);
+            return res.status(400).json({
+                error: validationResult.error.issues.map(issue => ({
+                    field: issue.path[0],
+                    message: issue.message
+                }))
+            });
+        }
+        const { name, email, password, role } = validationResult.data;
         if (!name || !email || !password || !role) {
             return res.status(400).json({
                 success: false,
@@ -56,56 +71,77 @@ export const storeUser = async (req, res) => {
 
 }
 
+
 export const updateUser = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        const { name, email, password, role } = req.body;
+
         if (isNaN(id)) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid user ID"
+                message: "Invalid user ID",
             });
         }
-        if(!name || !email || !role){
-            return res.status(400).json({
+
+        // Validate request body
+        const validatedData = await updateUserSchema(id).safeParseAsync(
+            req.body
+        );
+        console.log('validatedData', validatedData);
+        if (!validatedData.success) {
+            return res.status(422).json({
                 success: false,
-                message: "Name, email and role are required"
+                errors: validatedData.error.flatten().fieldErrors,
             });
         }
-        const [existingUser] = await db.select()
-        .from(usersModel)
-        .where(eq(usersModel.id, id));
-        if(!existingUser){
+
+        const { name, email, password, role } = validatedData.data;
+
+        // Check user exists
+        const [existingUser] = await db
+            .select()
+            .from(usersModel)
+            .where(eq(usersModel.id, id));
+
+        if (!existingUser) {
             return res.status(404).json({
                 success: false,
-                message: "User not found"
+                message: "User not found",
             });
         }
+
         const updatedUser = {
             name,
             email,
-            role
+            role,
         };
-        if(password){
-            updatedUser.password = hashPassword(password, randomSalt());
+
+        if (password) {
+            updatedUser.password = hashPassword(
+                password,
+                randomSalt()
+            );
         }
-        const result = await db.update(usersModel)
-        .set(updatedUser)
-        .where(eq(usersModel.id, id))
-        .returning();
+
+        const [result] = await db
+            .update(usersModel)
+            .set(updatedUser)
+            .where(eq(usersModel.id, id))
+            .returning();
+
         return res.status(200).json({
             success: true,
-            message: "User updated  successfully",
-            user: result
+            message: "User updated successfully",
+            user: result,
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
             message: "Error occurred while updating user",
-            error: error.message
+            error: error.message,
         });
     }
-}
+};
 
 export const deleteUser = async (req, res) => {
     try {
