@@ -5,6 +5,7 @@ import { hashPassword, randomSalt, verifyPassword } from '../utils/helper.js';
 import { eq } from 'drizzle-orm';
 import { generateToken } from '../../../lecture_8/authentication_session_02/utils/jwt.js';
 import { loginUserSchema, registerUserSchema } from '../validation/user.validation.js';
+import { getUserByEmail, insertUser } from '../services/user.service.js';
 
 export const registerUser = async (req, res) => {
 
@@ -31,8 +32,7 @@ export const registerUser = async (req, res) => {
         }
 
         // Check if user already exists
-        const [existingUser] = await db.select().from(usersModel)
-        .where(eq(usersModel.email, email));
+        const [existingUser] = await getUserByEmail(email);
         if (existingUser) {
             return res.status(400).json({
                 error: 'User with this email already exists'
@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
         }
         const hashedPassword = hashPassword(password, randomSalt());
         // Create new user
-        const [newUser] = await db.insert(usersModel).values({ name, email, password: hashedPassword, role ,created_by: null, updated_by: null}).returning();
+        const newUser = await insertUser({ name, email, password: hashedPassword, role, created_by: null, updated_by: null });
         return res.status(201).json({
             message: 'User registered successfully',
             user: newUser
