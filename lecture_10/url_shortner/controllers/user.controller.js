@@ -4,11 +4,12 @@ import { hashPassword, randomSalt } from "../utils/helper.js";
 import { eq } from "drizzle-orm";
 import { updateUserSchema, userSchema } from "../validation/user.validation.js";
 import { z } from "zod";
+import { createUser, deleteUserById, getAllUsers, getUserByEmail, getUserById, updateUserById } from "../services/user.service.js";
 
 
 export const getUsers = async (req, res) => {
   try {
-    const data = await db.select().from(usersModel);
+    const data = await getAllUsers();
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -37,25 +38,24 @@ export const storeUser = async (req, res) => {
             });
         }
 
-        const [existingUser] = await db.select()
-        .from(usersModel)
-        .where(eq(usersModel.email, email));
+        const [existingUser] = await getUserByEmail(email);
         if(existingUser){
             return res.status(400).json({
                 success: false,
                 message: "User with this email already exists"
             });
         }
-
-         const result = await db.insert(usersModel)
-        .values({
-            name,
-            email,
-            password: hashPassword(password, randomSalt()),
-            role,
-            created_by: req.user.id,
-            updated_by: null,
-        }).returning();
+        const result = await createUser(
+            {
+                name,
+                email,
+                password: hashPassword(password, randomSalt()),
+                role,
+                created_by: req.user.id,
+                updated_by: null,
+            }
+        );
+         
 
         return res.status(201).json({
             success: true,
@@ -98,10 +98,7 @@ export const updateUser = async (req, res) => {
         const { name, email, password, role } = validatedData.data;
 
         // Check user exists
-        const [existingUser] = await db
-            .select()
-            .from(usersModel)
-            .where(eq(usersModel.id, id));
+        const [existingUser] = await getUserById(id);
 
         if (!existingUser) {
             return res.status(404).json({
@@ -123,11 +120,7 @@ export const updateUser = async (req, res) => {
             );
         }
 
-        const [result] = await db
-            .update(usersModel)
-            .set(updatedUser)
-            .where(eq(usersModel.id, id))
-            .returning();
+        const [result] = await updateUserById(id, updatedUser);
 
         return res.status(200).json({
             success: true,
@@ -152,17 +145,15 @@ export const deleteUser = async (req, res) => {
                 message: "Invalid user ID"
             });
         }
-        const [existingUser] = await db.select()
-        .from(usersModel)
-        .where(eq(usersModel.id, id));
+        const [existingUser] = await getUserById(id);
         if(!existingUser){
             return res.status(404).json({
                 success: false,
                 message: "User not found"
             });
         }
-        await db.delete(usersModel)
-        .where(eq(usersModel.id, id));
+        await deleteUserById(id);
+        
         return res.status(200).json({
             success: true,
             message: "User deleted successfully"

@@ -40,7 +40,7 @@ export const registerUser = async (req, res) => {
         }
         const hashedPassword = hashPassword(password, randomSalt());
         // Create new user
-        const newUser = await insertUser({ name, email, password: hashedPassword, role, created_by: null, updated_by: null });
+        const [newUser] = await insertUser({ name, email, password: hashedPassword, role, created_by: null, updated_by: null });
         return res.status(201).json({
             message: 'User registered successfully',
             user: newUser
@@ -76,8 +76,8 @@ export const loginUser = async (req, res) => {
         }
 
         // Check if user exists
-        const [user] = await db.select().from(usersModel)
-        .where(eq(usersModel.email, email));
+      
+        const [user] = await getUserByEmail(email);
         if (!user) {
             return res.status(400).json({
                 error: 'Invalid email or password'

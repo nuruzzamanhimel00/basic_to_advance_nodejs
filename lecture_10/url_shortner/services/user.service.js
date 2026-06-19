@@ -9,8 +9,34 @@ export const getUserByEmail = async (email) => {
 }
 
 export const insertUser = async (userData) => {
-    const [createdUser] = await db.insert(usersModel)
+    return await db.insert(usersModel)
         .values(userData).returning();
-    return createdUser;
+    
 }
 
+export const getAllUsers = async () =>{
+    return await db.select().from(usersModel);
+}
+
+export const createUser = async (userData) => {
+    return await db.insert(usersModel)
+        .values(userData).returning();
+}
+
+export const getUserById = async (id) => {
+    return await db.select().from(usersModel)
+        .where(eq(usersModel.id, id));
+}
+
+export const updateUserById = async (id, userData) => {
+    return await db.update(usersModel)
+        .set(userData)
+        .where(eq(usersModel.id, id))
+        .returning();
+}
+
+export const deleteUserById = async (id) => {
+    return await db.delete(usersModel)
+        .where(eq(usersModel.id, id))
+        .returning();
+}
