@@ -2,9 +2,10 @@ import { z } from "zod";
 import db from "../src/index.js";
 import { usersModel } from "../models/user.model.js";
 import { and, eq, ne } from "drizzle-orm";
+import { shortUrlsModel } from "../models/shortUrl.model.js";
 
 
-export const shortUrlSchema = z.object({
+export const shortUrlRequest = z.object({
     original_url: z
         .string()
         .url("Please provide a valid URL"),
@@ -33,4 +34,16 @@ export const shortUrlSchema = z.object({
             message: "User does not exist",
         });
     }
+    const shortUrl = await db
+        .select({ short_code: shortUrlsModel.short_code })
+        .from(shortUrlsModel)
+        .where(eq(shortUrlsModel.short_code, data.short_code))
+        .limit(1);
+        if(shortUrl.length > 0){
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["short_code"],
+                message: "Short code already exists",
+            });
+        }
 });

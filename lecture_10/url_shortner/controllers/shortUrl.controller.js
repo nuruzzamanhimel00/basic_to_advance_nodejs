@@ -1,9 +1,10 @@
 import db from "../src/index.js";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { shortUrlSchema } from "../validation/shortUrl.validation.js";
+import { shortUrlRequest } from "../validation/shortUrl.validation.js";
 import { nanoid } from "nanoid";
 import { shortUrlsModel } from "../models/shortUrl.model.js";
+import { insertShortUrl } from "../services/shortUrl.service.js";
 
 export const storeShortUrl = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ export const storeShortUrl = async (req, res) => {
         // console.log('req.body', req);
          // Validate request body
         const validationResult =
-            await shortUrlSchema.safeParseAsync({
+            await shortUrlRequest.safeParseAsync({
                 original_url: req.body.original_url,
                 short_code: req.body.short_code,
                 user_id: req.user.id,
@@ -28,9 +29,8 @@ export const storeShortUrl = async (req, res) => {
     const { short_code } = validationResult.data;
     const shortCode = short_code || nanoid(5);
     //store in database
-        await db.insert(shortUrlsModel)
-        .values({ ...validationResult.data, short_code: shortCode })
-        .returning();
+    await insertShortUrl({ ...validationResult.data, short_code: shortCode })
+      
 
         return res.status(201).json({
             success: true,

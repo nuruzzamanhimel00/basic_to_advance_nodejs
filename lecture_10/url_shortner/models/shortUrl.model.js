@@ -13,7 +13,7 @@ export const shortUrlsModel = pgTable(
   "short_urls",
   {
     id: serial("id").primaryKey(),
-    user_id: integer("user_id").references(() => usersModel.id),
+    user_id: integer("user_id").references(() => usersModel.id).notNull(),
     original_url: text("original_url").notNull(),
 
     short_code: varchar("short_code", { length: 10 }).notNull().unique(),
