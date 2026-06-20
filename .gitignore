@@ -10,8 +10,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Environment files
-.env
-.env.*
 !.env.example
 
 # Build/output
@@ -22,5 +20,6 @@ coverage/
 # OS/editor files
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
+config.bat
+node_modules
