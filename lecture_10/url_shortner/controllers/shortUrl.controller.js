@@ -1,5 +1,5 @@
 import db from "../src/index.js";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { shortUrlRequest } from "../validation/shortUrl.validation.js";
 import { nanoid } from "nanoid";
@@ -48,3 +48,28 @@ export const storeShortUrl = async (req, res) => {
      }
 
 }
+
+export const getShortUrl = async (req, res) => {
+    try {
+        const { short_code } = req.params;
+        const user = req.user;
+        const [shortUrl] = await db.select().from(shortUrlsModel)
+            .where(and(
+                eq(shortUrlsModel.short_code, short_code),
+                eq(shortUrlsModel.user_id, user.id)
+            ));
+        if (!shortUrl) {
+            return res.status(404).json({
+                success: false,
+                message: "Short URL not found"
+            });
+        }
+       return res.redirect(shortUrl.original_url);
+    }catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+     }
+}   
